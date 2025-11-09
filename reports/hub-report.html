@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Cosmos Validator Health Report</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      color-scheme: dark light;
+      --bg: #0f172a;
+      --bg-panel: #1e293b;
+      --text-primary: #f8fafc;
+      --text-secondary: #cbd5f5;
+      --border: #334155;
+      --accent: #38bdf8;
+      --jailed: #ef4444;
+      --risk: #f97316;
+      --healthy: #22c55e;
+      --font: 'Segoe UI', 'Inter', system-ui, sans-serif;
+    }
+    body {
+      margin: 0;
+      padding: 32px;
+      font-family: var(--font);
+      background: radial-gradient(circle at top left, rgba(56,189,248,0.25), transparent 45%), var(--bg);
+      color: var(--text-primary);
+    }
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    header {
+      margin-bottom: 24px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 2rem;
+      letter-spacing: 0.02em;
+    }
+    .meta {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+    .summary {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 24px 0;
+    }
+    .badge {
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-weight: 600;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+    .badge.jailed { border-color: var(--jailed); color: var(--jailed); }
+    .badge.at_risk { border-color: var(--risk); color: var(--risk); }
+    .badge.healthy { border-color: var(--healthy); color: var(--healthy); }
+    .report-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--bg-panel);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 24px 48px rgba(15, 23, 42, 0.35);
+    }
+    th, td {
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.6);
+      text-align: left;
+    }
+    th {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-secondary);
+      background: rgba(15, 23, 42, 0.55);
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    .numeric {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+    .status-row.jailed {
+      background: linear-gradient(90deg, rgba(239, 68, 68, 0.15), transparent);
+    }
+    .status-row.at_risk {
+      background: linear-gradient(90deg, rgba(249, 115, 22, 0.15), transparent);
+    }
+    .status-row.healthy {
+      background: linear-gradient(90deg, rgba(34, 197, 94, 0.12), transparent);
+    }
+    .status-icon {
+      font-size: 1.1rem;
+      margin-right: 6px;
+    }
+    .reason {
+      color: var(--text-secondary);
+    }
+    .empty {
+      padding: 32px;
+      background: var(--bg-panel);
+      border-radius: 16px;
+      border: 1px dashed var(--border);
+      color: var(--text-secondary);
+      text-align: center;
+    }
+    footer {
+      margin-top: 32px;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Cosmos Validator Health Report</h1>
+      <div class="meta">
+        Generated at 2025-11-09 15:21:37 UTC &middot; Base URL: https://rest.cosmos.directory/cosmoshub<br />
+        Records processed: 200 &middot; Threshold: 200 missed blocks
+      </div>
+      <div class="summary">
+        <span class='badge jailed'>JAILED: 0</span><span class='badge at_risk'>AT_RISK: 3</span><span class='badge healthy'>HEALTHY: 0</span>
+      </div>
+    </header>
+    <table class='report-table'><thead><tr><th>Status</th><th>Validator</th><th>Missed Blocks</th><th>Commission</th><th>Notes</th></tr></thead><tbody><tr class='status-row at_risk'><td class='status-cell'><span class='status-icon'>⚠️</span> AT RISK</td><td class='moniker'> kjnodes.com 🦄</td><td class='numeric'>202</td><td class='numeric'>10.00%</td><td class='reason'>High missed blocks</td></tr><tr class='status-row at_risk'><td class='status-cell'><span class='status-icon'>⚠️</span> AT RISK</td><td class='moniker'>DOUBLETOP</td><td class='numeric'>547</td><td class='numeric'>5.00%</td><td class='reason'>High missed blocks</td></tr><tr class='status-row at_risk'><td class='status-cell'><span class='status-icon'>⚠️</span> AT RISK</td><td class='moniker'>Oldcat - airdrop DHK every month</td><td class='numeric'>974</td><td class='numeric'>5.00%</td><td class='reason'>High missed blocks</td></tr></tbody></table>
+    <footer>
+      Cosmos Validator Health Monitor &mdash; console + HTML output mode
+    </footer>
+  </div>
+</body>
+</html>

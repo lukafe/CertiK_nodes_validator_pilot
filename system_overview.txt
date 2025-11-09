@@ -1,0 +1,92 @@
+System Objective
+================
+
+The Cosmos Validator Health Monitor is a single-file Python utility that checks the operational status of Cosmos SDK validators. It queries a REST API to gather validator metadata, combines it with slashing/signing information, and produces a console report that highlights jailed and at-risk validators along with their missed blocks and commission rates. The goal is to provide a quick health snapshot for node operators or DevOps teams who need to track validator performance.
+
+Core Logic Flow
+===============
+
+1. Configuration
+   - The script reads command-line flags to determine the REST base URL, missed-block threshold, retry strategy, logging verbosity, and display options (e.g., hide healthy validators, limit number of results).
+   - Defaults target the Cosmos Hub mainnet via Cosmos Directory, but any Cosmos SDK REST endpoint can be supplied.
+
+2. Data Acquisition
+   - `get_api_data()` handles REST GET requests with retries and exponential backoff, ensuring resilience against transient network errors.
+   - `fetch_signing_info_map()` retrieves `/cosmos/slashing/v1beta1/signing_infos` and indexes results by consensus address.
+   - `fetch_active_validators()` pulls `/cosmos/staking/v1beta1/validators` filtered to bonded validators.
+
+3. Data Linking
+   - Each validator’s consensus public key (base64) is converted to a consensus address using SHA-256 hashing and bech32 encoding (`convert_pubkey_to_cons_address()`).
+   - A combined record is assembled with moniker, operator address, consensus address, jail status, missed blocks, and commission rate (`collect_validator_records()`).
+
+4. Health Evaluation
+   - `determine_health_status()` classifies validators as:
+     - `JAILED` if the validator is currently jailed.
+     - `AT_RISK` if missed blocks exceed the configurable threshold.
+     - `HEALTHY` otherwise.
+
+5. Reporting
+   - `print_validator_report()` sorts validators by severity, applies filters (e.g., hide healthy), and formats output with emoji or ASCII icons (with encoding-safe fallbacks).
+   - Each entry includes status, missed blocks, and commission.
+   - A summary line aggregates counts of displayed validators per status.
+   - When the `--html-output` flag is provided, `write_html_report()` generates a styled HTML dashboard (badge summary, gradient background, per-status highlighting) alongside the console output.
+
+6. Execution Entry Point
+   - `main()` orchestrates parsing flags, configuring logging, fetching data, merging records, and printing the final report.
+
+Console Output Example
+======================
+
+Below is a sample execution using the following flags:
+
+```
+python src/validator_health_monitor.py \
+  --missed-threshold 200 \
+  --hide-healthy \
+  --top 5
+```
+
+Example output:
+
+```
+INFO: Validator monitor started.
+INFO: Using base URL: https://rest.cosmos.directory/cosmoshub
+INFO: Loaded 300 signing info records.
+INFO: Fetched 200 bonded validators.
+INFO: Prepared 200 merged validator records.
+=== Validator Health Report ===
+Missed blocks threshold: 200
+
+[AT_RISK] ! Validator ' kjnodes.com ?'
+    - Status: AT_RISK (High missed blocks)
+    - Missed Blocks: 202
+    - Commission: 10.00%
+
+[AT_RISK] ! Validator 'DOUBLETOP'
+    - Status: AT_RISK (High missed blocks)
+    - Missed Blocks: 547
+    - Commission: 5.00%
+
+[AT_RISK] ! Validator 'Oldcat - airdrop DHK every month'
+    - Status: AT_RISK (High missed blocks)
+    - Missed Blocks: 974
+    - Commission: 5.00%
+
+Summary -> total shown: 3; AT_RISK: 3
+```
+
+What Each Section Means
+=======================
+
+- `INFO: ...` lines: logging statements showing progress (configuration used, number of records fetched/merged).
+- `=== Validator Health Report ===`: Title of the processed report.
+- `Missed blocks threshold: 200`: Threshold currently applied to classify validators as `AT_RISK`.
+- `[AT_RISK] ! Validator '...'`: Individual validator entry containing:
+  - Prefix `[STATUS]` and icon (`!` fallback) describing the result (`JAILED`, `AT_RISK`, `HEALTHY`).
+  - Moniker: human-readable validator name.
+  - Bullet points:
+    - `Status`: explanation of why it falls into the category (jailed or high missed blocks).
+    - `Missed Blocks`: number of missed blocks returned by the slashing endpoint.
+    - `Commission`: validator commission rate converted to percentage.
+- `Summary -> ...`: Aggregated counts for validators actually displayed, grouped by status.
+
